@@ -35,7 +35,6 @@ import (
 	"github.com/go-zookeeper/zk"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
@@ -158,21 +157,26 @@ func checkMongo() error {
 			client.Disconnect(context.TODO())
 		}
 	}()
-	mongodbHosts := ""
-	for i, v := range config.Config.Mongo.Address {
-		if i == len(config.Config.Mongo.Address)-1 {
-			mongodbHosts += v
-		} else {
-			mongodbHosts += v + ","
+
+	uri := config.Config.Mongo.Uri
+	if uri == "" {
+		mongodbHosts := ""
+		for i, v := range config.Config.Mongo.Address {
+			if i == len(config.Config.Mongo.Address)-1 {
+				mongodbHosts += v
+			} else {
+				mongodbHosts += v + ","
+			}
 		}
+		uri = fmt.Sprintf("mongodb://%v:%v@%v/?authSource=admin",
+			config.Config.Mongo.Username, config.Config.Mongo.Password, mongodbHosts)
 	}
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(
-		fmt.Sprintf("mongodb://%v:%v@%v/?authSource=admin",
-			config.Config.Mongo.Username, config.Config.Mongo.Password, mongodbHosts)))
+
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
 	if err != nil {
 		return errs.Wrap(err)
 	} else {
-		err = client.Ping(context.TODO(), &readpref.ReadPref{})
+		err = client.Ping(context.TODO(), nil)
 		if err != nil {
 			return errs.Wrap(err)
 		}

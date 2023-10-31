@@ -71,6 +71,9 @@ type conversationDatabase struct {
 
 func (c *conversationDatabase) SetUsersConversationFiledTx(ctx context.Context, userIDs []string, conversation *relationtb.ConversationModel, filedMap map[string]interface{}) (err error) {
 	cache := c.cache.NewCache()
+	if conversation.GroupID != "" {
+		cache = cache.DelSuperGroupRecvMsgNotNotifyUserIDs(conversation.GroupID).DelSuperGroupRecvMsgNotNotifyUserIDsHash(conversation.GroupID)
+	}
 	if err := c.tx.Transaction(func(tx any) error {
 		conversationTx := c.conversationDB.NewTx(tx)
 		haveUserIDs, err := conversationTx.FindUserID(ctx, userIDs, []string{conversation.ConversationID})
@@ -194,6 +197,9 @@ func (c *conversationDatabase) SetUserConversations(ctx context.Context, ownerUs
 		for _, conversation := range conversations {
 			conversationIDs = append(conversationIDs, conversation.ConversationID)
 			cache = cache.DelConversations(conversation.OwnerUserID, conversation.ConversationID)
+			if conversation.GroupID != "" {
+				cache = cache.DelSuperGroupRecvMsgNotNotifyUserIDs(conversation.GroupID).DelSuperGroupRecvMsgNotNotifyUserIDsHash(conversation.GroupID)
+			}
 		}
 		conversationTx := c.conversationDB.NewTx(tx)
 		existConversations, err := conversationTx.Find(ctx, ownerUserID, conversationIDs)

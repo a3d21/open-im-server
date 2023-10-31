@@ -19,7 +19,8 @@ ADD . .
 RUN make clean
 RUN make build
 
-FROM ghcr.io/openim-sigs/openim-ubuntu-image:latest
+#FROM ghcr.io/openim-sigs/openim-ubuntu-image:latest
+FROM registry.cn-hangzhou.aliyuncs.com/openimsdk/openim-bash-image:latest
 
 WORKDIR ${SERVER_WORKDIR}
 

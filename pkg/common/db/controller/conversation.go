@@ -192,14 +192,18 @@ func (c *conversationDatabase) GetUserAllConversation(ctx context.Context, owner
 
 func (c *conversationDatabase) SetUserConversations(ctx context.Context, ownerUserID string, conversations []*relationtb.ConversationModel) error {
 	cache := c.cache.NewCache()
+
+	groupIDs := utils.Distinct(utils.Filter(conversations, func(e *relationtb.ConversationModel) (string, bool) {
+		return e.GroupID, e.GroupID != ""
+	}))
+	for _, groupID := range groupIDs {
+		cache = cache.DelSuperGroupRecvMsgNotNotifyUserIDs(groupID).DelSuperGroupRecvMsgNotNotifyUserIDsHash(groupID)
+	}
 	if err := c.tx.Transaction(func(tx any) error {
 		var conversationIDs []string
 		for _, conversation := range conversations {
 			conversationIDs = append(conversationIDs, conversation.ConversationID)
 			cache = cache.DelConversations(conversation.OwnerUserID, conversation.ConversationID)
-			if conversation.GroupID != "" {
-				cache = cache.DelSuperGroupRecvMsgNotNotifyUserIDs(conversation.GroupID).DelSuperGroupRecvMsgNotNotifyUserIDsHash(conversation.GroupID)
-			}
 		}
 		conversationTx := c.conversationDB.NewTx(tx)
 		existConversations, err := conversationTx.Find(ctx, ownerUserID, conversationIDs)

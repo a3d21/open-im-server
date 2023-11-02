@@ -456,17 +456,19 @@ func (s *groupServer) GetGroupAllMember(ctx context.Context, req *pbgroup.GetGro
 		return nil, err
 	}
 	userInfoMap, err := s.GetUserInfoMap(ctx, utils.Filter(members, func(e *relationtb.GroupMemberModel) (string, bool) {
-		return e.UserID, e.Nickname == ""
+		return e.UserID, e.Nickname == "" || e.FaceURL == ""
 	}), true)
 	if err != nil {
 		return nil, err
 	}
 	resp.Members = utils.Slice(members, func(e *relationtb.GroupMemberModel) *sdkws.GroupMemberFullInfo {
-		if e.Nickname == "" {
-			e.Nickname = userInfoMap[e.UserID].Nickname
-		}
-		if e.FaceURL == "" {
-			e.FaceURL = userInfoMap[e.UserID].FaceURL
+		if userInfo, ok := userInfoMap[e.UserID]; ok {
+			if e.Nickname == "" {
+				e.Nickname = userInfo.Nickname
+			}
+			if e.FaceURL == "" {
+				e.FaceURL = userInfo.FaceURL
+			}
 		}
 		return convert.Db2PbGroupMember(e)
 	})
@@ -607,17 +609,19 @@ func (s *groupServer) GetGroupMembersInfo(ctx context.Context, req *pbgroup.GetG
 		return nil, err
 	}
 	userInfoMap, err := s.GetUserInfoMap(ctx, utils.Filter(members, func(e *relationtb.GroupMemberModel) (string, bool) {
-		return e.UserID, e.Nickname == ""
+		return e.UserID, e.Nickname == "" || e.FaceURL == ""
 	}), true)
 	if err != nil {
 		return nil, err
 	}
 	resp.Members = utils.Slice(members, func(e *relationtb.GroupMemberModel) *sdkws.GroupMemberFullInfo {
-		if e.Nickname == "" {
-			e.Nickname = userInfoMap[e.UserID].Nickname
-		}
-		if e.FaceURL == "" {
-			e.FaceURL = userInfoMap[e.UserID].FaceURL
+		if userInfo, ok := userInfoMap[e.UserID]; ok {
+			if e.Nickname == "" {
+				e.Nickname = userInfo.Nickname
+			}
+			if e.FaceURL == "" {
+				e.FaceURL = userInfo.FaceURL
+			}
 		}
 		return convert.Db2PbGroupMember(e)
 	})
@@ -1052,17 +1056,19 @@ func (s *groupServer) GetGroupMembersCMS(ctx context.Context, req *pbgroup.GetGr
 	}
 	resp.Total = total
 	userInfoMap, err := s.GetUserInfoMap(ctx, utils.Filter(members, func(e *relationtb.GroupMemberModel) (string, bool) {
-		return e.UserID, e.Nickname == ""
+		return e.UserID, e.Nickname == "" || e.FaceURL == ""
 	}), true)
 	if err != nil {
 		return nil, err
 	}
 	resp.Members = utils.Slice(members, func(e *relationtb.GroupMemberModel) *sdkws.GroupMemberFullInfo {
-		if e.Nickname == "" {
-			e.Nickname = userInfoMap[e.UserID].Nickname
-		}
-		if e.FaceURL == "" {
-			e.FaceURL = userInfoMap[e.UserID].FaceURL
+		if userInfo, ok := userInfoMap[e.UserID]; ok {
+			if e.Nickname == "" {
+				e.Nickname = userInfo.Nickname
+			}
+			if e.FaceURL == "" {
+				e.FaceURL = userInfo.FaceURL
+			}
 		}
 		return convert.Db2PbGroupMember(e)
 	})
@@ -1446,17 +1452,19 @@ func (s *groupServer) GetUserInGroupMembers(ctx context.Context, req *pbgroup.Ge
 		return nil, err
 	}
 	userInfoMap, err := s.GetUserInfoMap(ctx, utils.Filter(members, func(e *relationtb.GroupMemberModel) (string, bool) {
-		return e.UserID, e.Nickname == ""
+		return e.UserID, e.Nickname == "" || e.FaceURL == ""
 	}), true)
 	if err != nil {
 		return nil, err
 	}
 	resp.Members = utils.Slice(members, func(e *relationtb.GroupMemberModel) *sdkws.GroupMemberFullInfo {
-		if e.Nickname == "" {
-			e.Nickname = userInfoMap[e.UserID].Nickname
-		}
-		if e.FaceURL == "" {
-			e.FaceURL = userInfoMap[e.UserID].FaceURL
+		if userInfo, ok := userInfoMap[e.UserID]; ok {
+			if e.Nickname == "" {
+				e.Nickname = userInfo.Nickname
+			}
+			if e.FaceURL == "" {
+				e.FaceURL = userInfo.FaceURL
+			}
 		}
 		return convert.Db2PbGroupMember(e)
 	})
@@ -1482,17 +1490,19 @@ func (s *groupServer) GetGroupMemberRoleLevel(ctx context.Context, req *pbgroup.
 		return nil, err
 	}
 	userInfoMap, err := s.GetUserInfoMap(ctx, utils.Filter(members, func(e *relationtb.GroupMemberModel) (string, bool) {
-		return e.UserID, e.Nickname == ""
+		return e.UserID, e.Nickname == "" || e.FaceURL == ""
 	}), true)
 	if err != nil {
 		return nil, err
 	}
 	resp.Members = utils.Slice(members, func(e *relationtb.GroupMemberModel) *sdkws.GroupMemberFullInfo {
-		if e.Nickname == "" {
-			e.Nickname = userInfoMap[e.UserID].Nickname
-		}
-		if e.FaceURL == "" {
-			e.FaceURL = userInfoMap[e.UserID].FaceURL
+		if userInfo, ok := userInfoMap[e.UserID]; ok {
+			if e.Nickname == "" {
+				e.Nickname = userInfo.Nickname
+			}
+			if e.FaceURL == "" {
+				e.FaceURL = userInfo.FaceURL
+			}
 		}
 		return convert.Db2PbGroupMember(e)
 	})

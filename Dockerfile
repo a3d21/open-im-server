@@ -29,4 +29,6 @@ COPY --from=builder ${OPENIM_SERVER_BINDIR} /openim/openim-server/_output/bin
 COPY --from=builder ${OPENIM_SERVER_CMDDIR} /openim/openim-server/scripts
 # COPY --from=builder ${SERVER_WORKDIR}/config /openim/openim-server/config
 
+RUN cd /openim/openim-server/scripts && find -name '*.sh'|xargs chmod +x
+
 CMD ["/openim/openim-server/scripts/docker-start-all.sh"]

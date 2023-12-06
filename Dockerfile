@@ -1,5 +1,5 @@
 # Build Stage
-FROM golang:1.20 AS builder
+FROM golang:1.21 AS builder
 
 # Set go mod installation source and proxy
 ARG GO111MODULE=on
@@ -19,13 +19,16 @@ ADD . .
 RUN make clean
 RUN make build
 
-FROM ghcr.io/openim-sigs/openim-ubuntu-image:latest
+#FROM ghcr.io/openim-sigs/openim-ubuntu-image:latest
+FROM registry.cn-hangzhou.aliyuncs.com/openimsdk/openim-ubuntu-image:latest
 
 WORKDIR ${SERVER_WORKDIR}
 
 # Copy scripts and binary files to the production image
 COPY --from=builder ${OPENIM_SERVER_BINDIR} /openim/openim-server/_output/bin
-# COPY --from=builder ${OPENIM_SERVER_CMDDIR} /openim/openim-server/scripts
+COPY --from=builder ${OPENIM_SERVER_CMDDIR} /openim/openim-server/scripts
 # COPY --from=builder ${SERVER_WORKDIR}/config /openim/openim-server/config
+
+RUN cd /openim/openim-server/scripts && find -name '*.sh'|xargs chmod +x
 
 CMD ["/openim/openim-server/scripts/docker-start-all.sh"]

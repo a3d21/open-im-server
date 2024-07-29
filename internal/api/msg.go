@@ -239,10 +239,11 @@ func (m *MessageApi) SendMessage(c *gin.Context) {
 
 func (m *MessageApi) SendBusinessNotification(c *gin.Context) {
 	req := struct {
-		Key        string `json:"key"`
-		Data       string `json:"data"`
-		SendUserID string `json:"sendUserID"`
-		RecvUserID string `json:"recvUserID"`
+		Key          string `json:"key"`
+		Data         string `json:"data"`
+		SendUserID   string `json:"sendUserID"`
+		RecvUserID   string `json:"recvUserID"`
+		IsOnlineOnly bool   `json:"isOnlineOnly"`
 	}{}
 	if err := c.BindJSON(&req); err != nil {
 		apiresp.GinError(c, errs.ErrArgs.WithDetail(err.Error()).Wrap())
@@ -273,6 +274,9 @@ func (m *MessageApi) SendBusinessNotification(c *gin.Context) {
 				UnreadCount:      false,
 			}),
 		},
+	}
+	if req.IsOnlineOnly {
+		m.SetOptions(sendMsgReq.MsgData.Options, false)
 	}
 	respPb, err := m.Client.SendMsg(c, &sendMsgReq)
 	if err != nil {

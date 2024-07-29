@@ -249,10 +249,11 @@ func (m *MessageApi) SendMessage(c *gin.Context) {
 
 func (m *MessageApi) SendBusinessNotification(c *gin.Context) {
 	req := struct {
-		Key        string `json:"key"`
-		Data       string `json:"data"`
-		SendUserID string `json:"sendUserID" binding:"required"`
-		RecvUserID string `json:"recvUserID" binding:"required"`
+		Key          string `json:"key"`
+		Data         string `json:"data"`
+		SendUserID   string `json:"sendUserID" binding:"required"`
+		RecvUserID   string `json:"recvUserID" binding:"required"`
+		IsOnlineOnly bool   `json:"isOnlineOnly"`
 	}{}
 	if err := c.BindJSON(&req); err != nil {
 		apiresp.GinError(c, errs.ErrArgs.WithDetail(err.Error()).Wrap())
@@ -285,6 +286,11 @@ func (m *MessageApi) SendBusinessNotification(c *gin.Context) {
 			}),
 		},
 	}
+
+	if req.IsOnlineOnly {
+		m.SetOptions(sendMsgReq.MsgData.Options, false)
+	}
+
 	respPb, err := m.Client.SendMsg(c, &sendMsgReq)
 	if err != nil {
 		apiresp.GinError(c, err)

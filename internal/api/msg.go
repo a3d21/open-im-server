@@ -239,11 +239,11 @@ func (m *MessageApi) SendMessage(c *gin.Context) {
 
 func (m *MessageApi) SendBusinessNotification(c *gin.Context) {
 	req := struct {
-		Key          string `json:"key"`
-		Data         string `json:"data"`
-		SendUserID   string `json:"sendUserID"`
-		RecvUserID   string `json:"recvUserID"`
-		IsOnlineOnly bool   `json:"isOnlineOnly"`
+		Key              string `json:"key"`
+		Data             string `json:"data"`
+		SendUserID       string `json:"sendUserID"`
+		RecvUserID       string `json:"recvUserID"`
+		ReliabilityLevel int    `json:"reliabilityLevel"`
 	}{}
 	if err := c.BindJSON(&req); err != nil {
 		apiresp.GinError(c, errs.ErrArgs.WithDetail(err.Error()).Wrap())
@@ -252,6 +252,9 @@ func (m *MessageApi) SendBusinessNotification(c *gin.Context) {
 	if !authverify.IsAppManagerUid(c) {
 		apiresp.GinError(c, errs.ErrNoPermission.Wrap("only app manager can send message"))
 		return
+	}
+	if req.ReliabilityLevel < constant.UnreliableNotification {
+		req.ReliabilityLevel = constant.UnreliableNotification
 	}
 	sendMsgReq := msg.SendMsgReq{
 		MsgData: &sdkws.MsgData{
@@ -270,14 +273,12 @@ func (m *MessageApi) SendBusinessNotification(c *gin.Context) {
 			ClientMsgID: utils.GetMsgID(mcontext.GetOpUserID(c)),
 			Options: config.GetOptionsByNotification(config.NotificationConf{
 				IsSendMsg:        false,
-				ReliabilityLevel: 1,
+				ReliabilityLevel: req.ReliabilityLevel,
 				UnreadCount:      false,
 			}),
 		},
 	}
-	if req.IsOnlineOnly {
-		m.SetOptions(sendMsgReq.MsgData.Options, false)
-	}
+
 	respPb, err := m.Client.SendMsg(c, &sendMsgReq)
 	if err != nil {
 		apiresp.GinError(c, err)
